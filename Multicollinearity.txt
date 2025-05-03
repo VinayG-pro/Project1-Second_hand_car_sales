@@ -1,0 +1,27 @@
+When Can You Safely Ignore Multicollinearity?
+
+Multicollinearity is a common problem when estimating linear or generalized linear models, including logistic regression and Cox regression. It occurs when there are high correlations among predictor variables, leading to unreliable and unstable estimates of regression coefficients. Most data analysts know that multicollinearity is not a good thing.  But many do not realize that there are several situations in which multicollinearity can be safely ignored.
+
+Before examining those situations, let’s first consider the most widely-used diagnostic for multicollinearity, the variance inflation factor (VIF). The VIF may be calculated for each predictor by doing a linear regression of that predictor on all the other predictors, and then obtaining the R2 from that regression. The VIF is just 1/(1-R2).
+
+It’s called the variance inflation factor because it estimates how much the variance of a coefficient is “inflated” because of linear dependence with other predictors. Thus, a VIF of 1.8 tells us that the variance (the square of the standard error) of a particular coefficient is 80% larger than it would be if that predictor was completely uncorrelated with all the other predictors.
+
+The VIF has a lower bound of 1 but no upper bound. Authorities differ on how high the VIF has to be to constitute a problem. Personally, I tend to get concerned when a VIF is greater than 2.50, which corresponds to an R2 of .60 with the other variables.
+
+Regardless of your criterion for what constitutes a high VIF, there are at least three situations in which a high VIF is not a problem and can be safely ignored:
+
+1. The variables with high VIFs are control variables, and the variables of interest do not have high VIFs. Here’s the thing about multicollinearity: it’s only a problem for the variables that are collinear. It increases the standard errors of their coefficients, and it may make those coefficients unstable in several ways. But so long as the collinear variables are only used as control variables, and they are not collinear with your variables of interest, there’s no problem. The coefficients of the variables of interest are not affected, and the performance of the control variables as controls is not impaired.
+
+Here’s an example from some of my own work: the sample consists of U.S. colleges, the dependent variable is graduation rate, and the variable of interest is an indicator (dummy) for public vs. private. Two control variables are average SAT scores and average ACT scores for entering freshmen. These two variables have a correlation above .9, which corresponds to VIFs of at least 5.26 for each of them. But the VIF for the public/private indicator is only 1.04. So there’s no problem to be concerned about, and no need to delete one or the other of the two controls.
+
+2. The high VIFs are caused by the inclusion of powers or products of other variables. If you specify a regression model with both x and x2, there’s a good chance that those two variables will be highly correlated. Similarly, if your model has x, z, and xz, both x and z are likely to be highly correlated with their product. This is not something to be concerned about, however, because the p-value for xz is not affected by the multicollinearity.  This is easily demonstrated: you can greatly reduce the correlations by “centering” the variables (i.e., subtracting their means) before creating the powers or the products. But the p-value for x2 or for xz will be exactly the same, regardless of whether or not you center. And all the results for the other variables (including the R2 but not including the lower-order terms) will be the same in either case. So the multicollinearity has no adverse consequences.
+
+3. The variables with high VIFs are indicator (dummy) variables that represent a categorical variable with three or more categories. If the proportion of cases in the reference category is small, the indicator variables will necessarily have high VIFs, even if the categorical variable is not associated with other variables in the regression model.
+
+Suppose, for example, that a marital status variable has three categories: currently married, never married, and formerly married. You choose formerly married as the reference category, with indicator variables for the other two. What happens is that the correlation between those two indicators gets more negative as the fraction of people in the reference category gets smaller. For example, if 45 percent of people are never married, 45 percent are married, and 10 percent are formerly married, the VIFs for the married and never-married indicators will be at least 3.0.
+
+Is this a problem? Well, it does mean that p-values for the indicator variables may be high. But the overall test that all indicators have coefficients of zero is unaffected by the high VIFs. And nothing else in the regression is affected. If you really want to avoid the high VIFs, just choose a reference category with a larger fraction of the cases. That may be desirable in order to avoid situations where none of the individual indicators is statistically significant even though the overall set of indicators is significant.
+
+
+
+reference: https://statisticalhorizons.com/multicollinearity/
